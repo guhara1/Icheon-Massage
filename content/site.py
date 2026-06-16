@@ -6,6 +6,14 @@ BRAND_MARK = "GO"
 PHONE = "0508-202-4719"
 PHONE_DISPLAY = "0508-202-4719"
 
+# IndexNow — 빙·네이버·얀덱스에 즉시 색인 통보(키 파일은 /{KEY}.txt 로 배포)
+INDEXNOW_KEY = "31abe2575fa8409080775b75bf0df50b61e74330e65c491fb48c3605996e95a9"
+
+# RSS 피드 경로
+FEED_PATH = "feed.xml"
+SITE_TITLE = "간다GO 이천 출장마사지·홈타이 안내"
+SITE_DESC = "경기도 이천시 전지역 방문 출장마사지·홈타이 지역 안내"
+
 # 읍·면·대표 행정동 14곳 (slug, 한글명) — 내부링크·메뉴 공용
 # 이천시는 행정구가 없으므로 읍·면·동을 그대로 대표 페이지로 둔다.
 AREAS = [

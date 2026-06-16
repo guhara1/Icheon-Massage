@@ -60,10 +60,48 @@ python3 build.py
 
 - `content/site.py`의 `BASE_URL`을 실제 도메인으로 변경한 뒤 `python3 build.py` 재실행.
 
+## 색인(인덱싱) 빠르게 하기
+
+빌드(`python3 build.py`)는 색인용 파일을 자동 생성합니다.
+
+| 파일 | 용도 |
+|------|------|
+| `sitemap.xml` | `<lastmod>` 포함. Search Console·네이버 서치어드바이저에 제출 |
+| `feed.xml` | RSS 2.0 보조 피드(콘텐츠 발견 보조). robots.txt에 함께 명시 |
+| `robots.txt` | 모든 봇 허용 + sitemap·feed 위치 안내 |
+| `<KEY>.txt` | IndexNow 키 파일(`https://도메인/<KEY>.txt`로 검증) |
+
+### 1) IndexNow — 빙·네이버·얀덱스 즉시 통보 (구글 미참여)
+
+```bash
+python3 tools/indexnow.py                # sitemap 전체 제출
+python3 tools/indexnow.py https://icheon-massage.pages.dev/icheon/...   # 특정 글만
+```
+
+- 키 파일이 도메인에 배포된 뒤에 실행해야 합니다(배포 후 최초 1회 수동 실행 권장).
+- 이후에는 `.github/workflows/indexnow.yml` 이 **푸시될 때마다 자동 제출**합니다.
+  Cloudflare Pages 배포 브랜치에 맞춰 워크플로의 `branches:` 를 조정하세요.
+
+### 2) 구글 — IndexNow 미지원이므로 별도 경로
+
+- **정석:** Search Console에 `sitemap.xml` 제출 + URL 검사 도구로 색인 요청.
+- **선택:** `tools/google_indexing.py` (서비스 계정 필요). 구글 Indexing API는 공식적으로
+  JobPosting/BroadcastEvent 페이지만 지원 대상으로 명시하므로, 일반 페이지는 위 정석 경로를 우선하세요.
+
+> 참고: 구글·빙의 익명 **sitemap ping 엔드포인트는 2023년 폐지**되었습니다.
+> 따라서 sitemap ping 대신 Search Console/서치어드바이저 제출 + IndexNow 조합을 사용합니다.
+
+### 3) 검색엔진 등록(최초 1회)
+
+- 네이버 서치어드바이저: 사이트 등록 → 소유확인(메인 `naver-site-verification` 메타 적용됨) → `sitemap.xml`·`feed.xml` 제출.
+- 구글 Search Console: 속성 등록 → `sitemap.xml` 제출.
+
 ## 디렉터리
 
 ```
 build.py            빌드 스크립트
 content/            페이지 정의 (site, main, areas, stations, landmarks, info, pricing)
 assets/             style.css, nav.js, 파비콘/OG 이미지
+tools/              indexnow.py, google_indexing.py (색인 통보 스크립트)
+.github/workflows/  indexnow.yml (푸시 시 자동 IndexNow 제출)
 ```

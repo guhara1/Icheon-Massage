@@ -14,12 +14,18 @@ import os
 import re
 import shutil
 import sys
+import time
+
+
+def xml_escape(s: str) -> str:
+    """XML 텍스트 노드용 이스케이프."""
+    return html.escape(s, quote=False)
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from content import PAGES
-from content.site import (BASE_URL, BRAND, BRAND_MARK, NAV, PHONE,
-                          PHONE_DISPLAY)
+from content.site import (BASE_URL, BRAND, BRAND_MARK, FEED_PATH, INDEXNOW_KEY,
+                          NAV, PHONE, PHONE_DISPLAY, SITE_DESC, SITE_TITLE)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MIN_INDEX_CHARS = 2000
@@ -317,7 +323,9 @@ def render_page(page: dict) -> str:
 
 def build() -> None:
     report = []
-    sitemap_urls = []
+    indexed = []  # (loc, title, desc) — 색인 허용 페이지
+    base = BASE_URL.rstrip("/")
+    lastmod = time.strftime("%Y-%m-%d", time.gmtime())
 
     for page in PAGES:
         path = page["path"]  # "" 또는 "icheon/.../" 형태
@@ -330,12 +338,13 @@ def build() -> None:
         chars = text_length(page["body"])
         noindex = page.get("noindex", False) or chars < MIN_INDEX_CHARS
         if not noindex:
-            sitemap_urls.append(BASE_URL.rstrip("/") + "/" + path)
+            indexed.append((base + "/" + path, page["title"], page["desc"]))
         report.append((path or "/", chars, "noindex" if noindex else "index"))
 
-    # sitemap.xml
+    # sitemap.xml (lastmod 포함 — 크롤러가 변경 시점을 빠르게 인지)
     urls = "\n".join(
-        f"  <url><loc>{u}</loc></url>" for u in sitemap_urls
+        f"  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod></url>"
+        for loc, _t, _d in indexed
     )
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(
@@ -344,15 +353,52 @@ def build() -> None:
             f"{urls}\n</urlset>\n"
         )
 
-    # robots.txt
+    # feed.xml (RSS 2.0 — 네이버·구글의 콘텐츠 발견을 돕는 보조 피드)
+    pub = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
+    items = "\n".join(
+        f"""  <item>
+    <title>{xml_escape(t)}</title>
+    <link>{loc}</link>
+    <guid isPermaLink="true">{loc}</guid>
+    <description>{xml_escape(d)}</description>
+    <pubDate>{pub}</pubDate>
+  </item>"""
+        for loc, t, d in indexed
+    )
+    with open(os.path.join(ROOT, FEED_PATH), "w", encoding="utf-8") as f:
+        f.write(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+            "<channel>\n"
+            f"  <title>{xml_escape(SITE_TITLE)}</title>\n"
+            f"  <link>{base}/</link>\n"
+            f'  <atom:link href="{base}/{FEED_PATH}" rel="self" type="application/rss+xml"/>\n'
+            f"  <description>{xml_escape(SITE_DESC)}</description>\n"
+            "  <language>ko</language>\n"
+            f"  <lastBuildDate>{pub}</lastBuildDate>\n"
+            f"{items}\n"
+            "</channel>\n</rss>\n"
+        )
+
+    # IndexNow 키 파일 — https://도메인/{KEY}.txt 로 검증
+    with open(os.path.join(ROOT, INDEXNOW_KEY + ".txt"), "w", encoding="utf-8") as f:
+        f.write(INDEXNOW_KEY + "\n")
+
+    # robots.txt — sitemap·feed 동시 안내, 주요 봇 명시 허용
     with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(
             "User-agent: *\nAllow: /\n\n"
-            f"Sitemap: {BASE_URL.rstrip('/')}/sitemap.xml\n"
+            "User-agent: Googlebot\nAllow: /\n\n"
+            "User-agent: Yeti\nAllow: /\n\n"
+            "User-agent: bingbot\nAllow: /\n\n"
+            f"Sitemap: {base}/sitemap.xml\n"
+            f"Sitemap: {base}/{FEED_PATH}\n"
         )
 
     # .nojekyll (GitHub Pages)
     open(os.path.join(ROOT, ".nojekyll"), "w").close()
+
+    sitemap_urls = [loc for loc, _t, _d in indexed]
 
     width = max(len(p) for p, _, _ in report)
     print(f"{'PATH'.ljust(width)}  CHARS  ROBOTS")

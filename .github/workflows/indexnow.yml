@@ -1,0 +1,34 @@
+name: IndexNow ping
+
+# 콘텐츠가 푸시될 때마다 빙·네이버·얀덱스에 즉시 색인 통보.
+# (Cloudflare Pages 자동 배포 후 크롤러가 방문하므로, 약간의 지연은 문제되지 않습니다.)
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "content/**"
+      - "build.py"
+      - "**/index.html"
+      - "sitemap.xml"
+  workflow_dispatch: {}
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build (sitemap/feed/IndexNow 키 갱신)
+        run: python3 build.py
+
+      - name: Cloudflare Pages 배포 대기
+        run: sleep 60
+
+      - name: IndexNow 제출 (빙·네이버·얀덱스)
+        run: python3 tools/indexnow.py
