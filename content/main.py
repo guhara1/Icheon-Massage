@@ -16,7 +16,8 @@ _LANDMARK_CARDS = "".join(
     for slug, _menu, full in LANDMARKS
 )
 
-_JSONLD = f"""<link rel="preload" as="image" href="/assets/hero.webp" type="image/webp" fetchpriority="high">
+_JSONLD = f"""<meta name="naver-site-verification" content="93dcd13d44b4ccbc1088381413ab100c3dd6b0b2">
+<link rel="preload" as="image" href="/assets/hero.webp" type="image/webp" fetchpriority="high">
 <script type="application/ld+json">
 {{
   "@context": "https://schema.org",
