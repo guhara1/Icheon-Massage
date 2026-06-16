@@ -1,0 +1,199 @@
+# 메인 페이지 — 허브 역할. 모든 키워드를 밀어 넣지 않고 상세 페이지로 연결한다.
+from .site import (AREAS, BASE_URL, BRAND, LANDMARKS, PHONE, PHONE_DISPLAY,
+                   STATIONS, area_url, landmark_url, station_url)
+from .pricing import PRICING
+
+_AREA_CARDS = "".join(
+    f'<li><a href="{area_url(slug)}">{name} 출장마사지</a></li>'
+    for slug, name in AREAS
+)
+_STATION_CARDS = "".join(
+    f'<li><a href="{station_url(slug)}">{name} 출장마사지</a></li>'
+    for slug, name in STATIONS
+)
+_LANDMARK_CARDS = "".join(
+    f'<li><a href="{landmark_url(slug)}">{full} 출장마사지</a></li>'
+    for slug, _menu, full in LANDMARKS
+)
+
+_JSONLD = f"""<link rel="preload" as="image" href="/assets/hero.webp" type="image/webp" fetchpriority="high">
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "{BRAND}",
+  "url": "{BASE_URL}/",
+  "telephone": "{PHONE}",
+  "image": "{BASE_URL}/assets/og-image.png",
+  "logo": "{BASE_URL}/assets/icon-512.png",
+  "description": "경기도 이천시 전지역 방문 출장마사지·홈타이 예약 안내",
+  "areaServed": {{
+    "@type": "AdministrativeArea",
+    "name": "경기도 이천시"
+  }}
+}}
+</script>
+<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{
+      "@type": "Question",
+      "name": "이천시 전지역 방문이 가능한가요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "장호원읍, 부발읍, 신둔면, 마장면 등 읍·면 지역과 창전동, 증포동, 중리동, 관고동 등 대표 동을 기준으로 경기도 이천시 전지역을 안내합니다. 외곽 면 지역은 차량 이동 기준으로 가능 여부를 확인합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "이천은 행정구가 없는데 어떻게 지역을 나누나요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "이천시는 행정구가 없어 읍·면·대표 동 14곳을 그대로 대표 페이지로 두고, 경강선 이천역·부발역·신둔도예촌역 역세권과 생활권 거점을 함께 안내합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "안흥동·갈산동·사음동도 안내되나요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "안흥동·갈산동·송정동은 증포동 페이지, 사음동·도자예술마을은 신둔면 페이지 본문에서 함께 안내해 중복 페이지 위험을 줄였습니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "장호원읍·율면 같은 외곽도 추가 이동비가 있나요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "장호원읍, 율면, 설성면, 모가면처럼 이동 거리가 먼 외곽 지역은 추가 이동비가 발생할 수 있으며, 예약 시 총비용으로 먼저 안내합니다."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "부발역은 노선이 두 개인데 페이지가 하나인가요?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "부발역은 경강선과 중부내륙선이 함께 지나지만 노선별로 페이지를 나누지 않고 부발역 출장마사지 1개 페이지에서 함께 안내합니다."
+      }}
+    }}
+  ]
+}}
+</script>
+"""
+
+_HERO = f"""<section class="hero">
+  <div class="hero-inner hero-grid">
+    <div class="hero-text">
+      <p class="hero-badge">Premium Visiting Spa · 경기도 이천시 전지역</p>
+      <h1>이천 출장마사지·이천시 홈타이<br>지역별 예약 안내</h1>
+      <p class="hero-lead">샵까지 갈 필요 없이, 계신 곳에서 받는 방문 관리.<br>경기도 이천시 읍·면·동 어디든 전화 한 통이면 예약이 끝납니다.</p>
+      <div class="hero-actions">
+        <a class="hero-btn primary" href="tel:{PHONE}">📞 {PHONE_DISPLAY}</a>
+        <a class="hero-btn" href="#areas">지역별 안내 보기</a>
+      </div>
+      <ul class="hero-stats">
+        <li><strong>14곳</strong><span>읍·면·대표 동</span></li>
+        <li><strong>3개</strong><span>경강선 역세권</span></li>
+        <li><strong>9곳</strong><span>생활권·주요 거점</span></li>
+        <li><strong>24시간</strong><span>예약 상담</span></li>
+      </ul>
+    </div>
+    <div class="hero-media">
+      <picture>
+        <source srcset="/assets/hero.webp" type="image/webp">
+        <img src="/assets/hero.jpg" alt="이천 출장마사지·이천시 홈타이 방문 관리 안내" width="1200" height="675" fetchpriority="high" decoding="async">
+      </picture>
+    </div>
+  </div>
+</section>
+"""
+
+_BODY = f"""
+<section id="service">
+<h2>이천시에서 출장마사지를 찾는 이유</h2>
+<p>이천 출장마사지를 찾는 분들은 대부분 지금 계신 곳에서 가까운 방문 가능 지역을 먼저 확인합니다. 이천시는 경기도 동남부에 위치한 도시로, 이천역과 부발역을 중심으로 한 경강선 생활권, 창전동·증포동·관고동 중심 생활권, 그리고 장호원읍·마장면·부발읍처럼 차량 이동 기준이 중요한 생활권이 함께 존재합니다. 그래서 이천 출장마사지 사이트는 단순히 역세권만 나누기보다 읍·면·동과 실제 이동 기준을 함께 반영하는 구조로 만들었습니다. {BRAND}는 예약 확인부터 방문 관리까지 정해진 절차에 따라 진행하며, 이 페이지는 이천 전체 구조를 설명하는 허브 역할을 합니다. 더 자세한 내용은 읍·면·대표 동 페이지와 경강선 역세권 페이지에서 확인하실 수 있습니다.</p>
+<p>이천 홈타이는 자택, 숙소, 사무실 인근에서 예약 가능 여부를 먼저 확인한 뒤 이용하는 방문형 관리 서비스입니다. 매장을 찾아가거나 역에서 따로 만나는 절차는 없으며, 관리사가 예약하신 주소로 직접 방문합니다. 본문과 제목에는 이천 출장마사지, 이천시 출장마사지, 이천 홈타이 표현을 자연스럽게 함께 사용합니다.</p>
+</section>
+
+<section id="coverage">
+<h2>이천 홈타이 이용 전 확인할 사항</h2>
+<p>이천시 홈타이 사이트를 만들 때 가장 중요한 부분은 행정구를 억지로 만들지 않는 것입니다. 이천시는 용인처럼 처인구·기흥구·수지구가 있는 도시도 아니고, 안양처럼 만안구·동안구가 있는 도시도 아닙니다. 따라서 메인페이지 아래에 바로 장호원읍, 부발읍, 신둔면, 백사면, 호법면, 마장면, 대월면, 모가면, 설성면, 율면, 창전동, 증포동, 중리동, 관고동 페이지를 배치합니다. 이천은 번호가 붙은 1동·2동 구조로 잘게 나눌 지역이 많지 않으므로 읍·면·동을 그대로 대표 페이지로 구성했습니다. 다만 세부 법정동과 마을 단위까지 전부 페이지로 만들면 중복 위험이 커지므로, 안흥동·갈산동·송정동은 증포동 페이지 안에서, 사음동과 도자예술마을은 신둔면 페이지 안에서 함께 설명합니다.</p>
+</section>
+
+<section id="areas">
+<h2>읍·면·대표 동별 방문 가능 지역 안내</h2>
+<p>지역별 안내는 경기도 이천시 읍·면·대표 동 14곳을 기준으로 구성됩니다. 각 페이지에서는 해당 생활권의 특징, 가까운 경강선 역, 방문 전 확인사항, 예약 가능 시간, 추가 이동비 여부를 지역마다 고유한 내용으로 설명합니다. 거주하시거나 머무시는 지역을 선택해 주세요.</p>
+<ul class="card-grid">
+{_AREA_CARDS}
+</ul>
+<p>창전동은 이천중앙로·이천터미널 중심 상권을, 증포동은 안흥동·갈산동을 아우르는 북부 주거권을, 중리동·관고동은 이천역·설봉공원 중심부를, 부발읍·신둔면은 산업·도예 생활권을, 장호원읍·율면·설성면·모가면은 차량 이동 기준이 중요한 남부 외곽을 중심으로 안내합니다.</p>
+</section>
+
+<section id="stations">
+<h2>이천역·부발역·신둔도예촌역 역세권 안내</h2>
+<p>역세권 안내는 경기도 이천시를 지나는 경강선 역을 기준으로 구성합니다. 이천역, 부발역, 신둔도예촌역 세 곳만 정확히 잡고, 각 역 페이지에서는 주변 읍·면·동, 이동 동선, 이용 시간대, 예약 전 확인사항을 역마다 다르게 설명합니다. 역 이름만 바꾼 반복 페이지나 노선·방향별 중복 페이지는 만들지 않습니다.</p>
+<ul class="card-grid">
+{_STATION_CARDS}
+</ul>
+<p>이천역은 중리동·율현동 시내 생활권과, 부발역은 부발읍·SK하이닉스 인근 산업권과(경강선·중부내륙선을 한 페이지에서 함께 안내), 신둔도예촌역은 신둔면·도자예술마을 생활권과 연결됩니다. 행정구역상 이천시 역이 아닌 감곡장호원역은 단독 역 페이지로 만들지 않습니다.</p>
+</section>
+
+<section id="landmarks">
+<h2>창전동·증포동·관고동 중심 생활권 안내</h2>
+<p>생활권·주요 거점 안내는 이천터미널, 이천시청, 이천중앙로, 설봉공원, 이천도자예술마을, SK하이닉스 이천 인근, 마장프리미엄아울렛, 장호원, 이천IC처럼 실제 이용자가 찾을 수 있는 거점을 보조로 정리한 페이지입니다. 읍·면·동 페이지가 행정 단위 검색을 담당한다면, 거점 페이지는 익숙한 장소를 기준으로 위치를 가늠하시는 분들을 위한 안내입니다.</p>
+<ul class="card-grid">
+{_LANDMARK_CARDS}
+</ul>
+<p>각 거점은 위치를 가늠하기 위한 기준점일 뿐이며, 모든 방문은 예약하신 자택·숙소 주소를 기준으로 이루어집니다. 거점에서 따로 만나는 절차는 없습니다.</p>
+</section>
+
+<section id="check">
+<h2>예약 전 꼭 확인해야 할 기준</h2>
+<p>예약 전에는 방문 가능 지역, 관리 가능 시간, 추가 이동비, 결제 방식, 취소 기준, 서비스 범위를 먼저 확인해야 합니다. 이천시는 도시 면적이 넓고 읍·면 지역 비중이 커서, 같은 시 안에서도 창전동·증포동 중심권과 장호원읍·율면·설성면 외곽 생활권의 이동 시간이 크게 다릅니다. 특히 마장면, 장호원읍, 율면, 설성면은 차량 이동 시간이 달라질 수 있으므로 추가 이동비와 예약 가능 시간을 명확히 확인하시는 것이 좋습니다. 자세한 준비 방법은 <a href="/precautions/">이용 전 확인사항</a>에서, 예약 절차와 결제·이동비 안내는 <a href="/reservation/">예약안내</a>에서 확인해 주세요. 홈타이가 처음이라면 <a href="/hometai-guide/">홈타이 이용 가이드</a>를 함께 보시면 도움이 됩니다.</p>
+</section>
+
+<section id="guide">
+<h2>이천 출장마사지 사이트 이용 가이드</h2>
+<p>메인페이지는 이천시 전체 안내를 담당하고, 읍·면·동 페이지는 세부 지역 검색을, 경강선 역세권 페이지는 이천역·부발역·신둔도예촌역 검색 의도를, 생활권 거점 페이지는 이천터미널·이천시청·설봉공원처럼 익숙한 장소 검색을 담당합니다. 거주 지역이 익숙하면 행정동 페이지를, 역이나 거점 기준 위치가 익숙하면 역세권·거점 페이지를 보시면 됩니다. 어느 페이지를 보셔도 예약 절차와 비용 기준은 동일하며, 최종 안내는 언제나 정확한 주소를 기준으로 이루어집니다. 과장된 표현이나 허위 후기, 불법·선정적인 안내는 사용하지 않으며, 이용 가능 지역과 예약 절차, 취소 기준, 개인정보 처리 기준을 분명하게 보여드리는 것을 원칙으로 합니다.</p>
+</section>
+
+<section id="faq">
+<h2>자주 묻는 질문</h2>
+<div class="faq-item">
+<h3>이천시 전지역 방문이 가능한가요?</h3>
+<p>읍·면·대표 동 14곳과 경강선 역세권, 생활권 거점을 기준으로 경기도 이천시 전지역을 안내합니다. 외곽 면 지역은 차량 이동 기준으로 가능 여부를 확인합니다.</p>
+</div>
+<div class="faq-item">
+<h3>이천은 행정구가 없는데 지역을 어떻게 나누나요?</h3>
+<p>행정구가 없는 도시이므로 구 단위 페이지는 만들지 않고, 읍·면·대표 동 14곳을 그대로 대표 페이지로 두었습니다. 세부 마을은 가까운 대표 페이지 본문에서 함께 설명합니다.</p>
+</div>
+<div class="faq-item">
+<h3>안흥동·사음동처럼 작은 동네도 방문되나요?</h3>
+<p>네. 안흥동·갈산동은 증포동, 사음동·도자예술마을은 신둔면 안내에서 함께 다룹니다. 같은 생활권을 나눠 반복 설명하지 않기 위해서입니다.</p>
+</div>
+<div class="faq-item">
+<h3>장호원읍·율면 같은 외곽은 추가 이동비가 붙나요?</h3>
+<p>장호원읍, 율면, 설성면, 모가면처럼 이동 거리가 먼 지역은 추가 이동비가 발생할 수 있습니다. 예약 시 총비용으로 먼저 안내해 드립니다.</p>
+</div>
+</section>
+
+{PRICING}
+<section id="contact" class="cta">
+<h2>예약문의</h2>
+<p>이천 방문 관리 예약과 상담은 전화로 가장 빠르게 진행됩니다. 위치와 희망 시간을 알려주시면 가능 여부를 바로 확인해 드립니다.</p>
+<a class="cta-phone" href="tel:{PHONE}">{PHONE_DISPLAY}</a>
+</section>
+"""
+
+PAGE = {
+    "path": "",
+    "title": "이천 출장마사지｜이천시 홈타이 지역별 예약 안내",
+    "desc": "이천 출장마사지·홈타이 예약 전 읍면동, 역세권, 이용 기준을 정리했습니다.",
+    "h1": "이천 출장마사지 · 이천시 홈타이 지역별 예약 안내",
+    "body": _BODY,
+    "extra_head": _JSONLD,
+    "breadcrumb": [],
+    "hero": _HERO,
+}
